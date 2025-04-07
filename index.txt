@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>🌍 Wetterabfrage</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      background: linear-gradient(to right, #87CEFA, #f0f8ff);
+      padding: 2rem;
+      text-align: center;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 400px;
+      margin: auto;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    input, button {
+      padding: 0.6rem;
+      margin-top: 1rem;
+      font-size: 1rem;
+      width: 80%;
+    }
+    #ausgabe {
+      margin-top: 2rem;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>🌤️ Wetter für deine Stadt</h1>
+    <input type="text" id="stadt" placeholder="z. B. Berlin">
+    <br>
+    <button onclick="holeWetter()">Wetter abrufen</button>
+    <div id="ausgabe"></div>
+  </div>
+
+  <script>
+    const apiKey = "37902b8224263aa490b5dee0c2574ea1"; // Dein OpenWeatherMap API-Key
+
+    async function holeWetter() {
+      const city = document.getElementById("stadt").value.trim();
+      const ausgabe = document.getElementById("ausgabe");
+
+      if (!city) {
+        ausgabe.innerHTML = "❗ Bitte gib eine Stadt ein.";
+        return;
+      }
+
+      const proxy = "https://corsproxy.io/?";
+      const url = proxy + encodeURIComponent(
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=de`
+      );
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.cod !== 200) {
+          ausgabe.innerHTML = `❌ Fehler: ${data.message}`;
+          return;
+        }
+
+        const wetter = data.weather[0].description;
+        const temp = Math.round(data.main.temp * 10) / 10;
+
+        ausgabe.innerHTML = `
+          <p><strong>📍 Stadt:</strong> ${city}</p>
+          <p><strong>🌤️ Wetter:</strong> ${wetter}</p>
+          <p><strong>🌡️ Temperatur:</strong> ${temp} °C</p>
+        `;
+      } catch (err) {
+        ausgabe.innerHTML = "🚫 Fehler bei der Anfrage.";
+      }
+    }
+  </script>
+
+</body>
+</html>
